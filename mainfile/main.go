@@ -7,6 +7,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"unicode"
 
 	"proj"
 )
@@ -38,7 +39,7 @@ func main() {
 		// convert byte array to strings
 		dataInStr := string(data)
 
-		ar := strings.Split(dataInStr, " ")
+		ar := strings.Fields(dataInStr)
 		//br := strings.Replace(dataInStr, ",", " , ",proj.ListSize(link))
 
 		for _, v := range ar {
@@ -61,8 +62,8 @@ func main() {
 			}
 
 			// hex to decimal case
-			if proj.ListAt(link.Head,i).Data == "(hex)" {
-				hextodec , _ := strconv.ParseInt((proj.ListAt(link.Head, i-1).Data), 16, 32)
+			if proj.ListAt(link.Head, i).Data == "(hex)" {
+				hextodec, _ := strconv.ParseInt((proj.ListAt(link.Head, i-1).Data), 16, 32)
 				proj.ListAt(link.Head, i-1).Data = fmt.Sprint(hextodec)
 				proj.DeleteNode(link.Head, i)
 			}
@@ -91,7 +92,7 @@ func main() {
 			}
 
 			// handling cap case
-			if proj.ListAt(link.Head, i).Data == "(cap)" {
+			if strings.Contains(proj.ListAt(link.Head, i).Data, "(cap)") {
 				proj.ListAt(link.Head, i-1).Data = strings.Title(proj.ListAt(link.Head, i-1).Data)
 				proj.DeleteNode(link.Head, i)
 			} else if strings.Contains(proj.ListAt(link.Head, i).Data, "(cap,") {
@@ -133,6 +134,22 @@ func main() {
 				proj.DeleteNode(link.Head, i)
 				proj.DeleteNode(link.Head, i)
 			}
+
+			//punctuation check
+
+			//if strings.Contains(proj.ListAt(link.Head, i).Data, ",") {
+			checkpunc := []rune(proj.ListAt(link.Head, i).Data)
+			for j := 0; j < len(checkpunc); j++ {
+				if strings.Contains(string(checkpunc[j]), "'") {
+					
+				} else if unicode.IsPunct(checkpunc[0]) && unicode.IsPunct(checkpunc[j]) {
+					proj.ListAt(link.Head, i-1).Data = proj.ListAt(link.Head, i-1).Data + string(checkpunc[j])
+					proj.ListAt(link.Head, i).Data = string(checkpunc[j+1:])
+					//return
+				}
+			}
+			//}
+
 		}
 
 		// output for testing
@@ -144,7 +161,6 @@ func main() {
 				fmt.Print(" ")
 			}
 			it = it.Next
-			//fmt.Println()
 			counter++
 		}
 	}
