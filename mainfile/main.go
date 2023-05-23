@@ -5,6 +5,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 	"unicode"
@@ -40,8 +41,10 @@ func main() {
 		dataInStr := string(data)
 
 		ar := strings.Fields(dataInStr)
-		//br := strings.Replace(dataInStr, ",", " , ",proj.ListSize(link))
-
+		// for _ , word := range ar {
+		// 	fmt.Println(word)
+		// }
+		// return
 		for _, v := range ar {
 			proj.ListPush(link, v)
 		}
@@ -135,21 +138,42 @@ func main() {
 				proj.DeleteNode(link.Head, i)
 			}
 
-			//punctuation check
+			// Vowels handle
+			if proj.ListAt(link.Head, i).Data == "a" {
+				match, err := regexp.Compile("u")
+				if err != nil {
+					fmt.Println("Error")
+				}
+				for _, word := range string(proj.ListAt(link.Head, i+1).Data) {
 
-			//if strings.Contains(proj.ListAt(link.Head, i).Data, ",") {
+					found := match.MatchString(string(word))
+			
+					if found {
+			
+						fmt.Println("%s matches\n", string(word))
+					} else {
+			
+						fmt.Println("%s does not match\n", string(word))
+					}
+				}
+
+			}
+
+			//punctuation check
 			checkpunc := []rune(proj.ListAt(link.Head, i).Data)
-			for j := 0; j < len(checkpunc); j++ {
+			for j := 0; j < len(checkpunc)-1; j++ {
 				if strings.Contains(string(checkpunc[j]), "'") {
-					
+					if checkpunc[j+1] == 32 {
+						proj.ListAt(link.Head, i).Data = strings.Replace(proj.ListAt(link.Head, i).Data, "'", "''", -1)
+					}
+				} else if strings.Contains(string(checkpunc[j]), ",") {
+					proj.ListAt(link.Head, i).Data = strings.Replace(proj.ListAt(link.Head, i).Data, ", ", ",", -1)
+					proj.ListAt(link.Head, i).Data = strings.Replace(proj.ListAt(link.Head, i).Data, ",'", ", '", -1)
 				} else if unicode.IsPunct(checkpunc[0]) && unicode.IsPunct(checkpunc[j]) {
 					proj.ListAt(link.Head, i-1).Data = proj.ListAt(link.Head, i-1).Data + string(checkpunc[j])
 					proj.ListAt(link.Head, i).Data = string(checkpunc[j+1:])
-					//return
 				}
 			}
-			//}
-
 		}
 
 		// output for testing
@@ -158,11 +182,13 @@ func main() {
 		for it != nil {
 			fmt.Print(it.Data)
 			if counter < proj.ListSize(link)-1 && it.Next.Data != "," {
+				if it.Data == "'" {
+
+				}
 				fmt.Print(" ")
 			}
 			it = it.Next
 			counter++
 		}
 	}
-	fmt.Println()
 }
