@@ -39,12 +39,8 @@ func main() {
 
 		// convert byte array to strings
 		dataInStr := string(data)
-
 		ar := strings.Fields(dataInStr)
-		// for _ , word := range ar {
-		// 	fmt.Println(word)
-		// }
-		// return
+
 		for _, v := range ar {
 			proj.ListPush(link, v)
 		}
@@ -140,21 +136,19 @@ func main() {
 
 			// Vowels handle
 			if proj.ListAt(link.Head, i).Data == "a" {
-				match, err := regexp.Compile("u")
-				if err != nil {
-					fmt.Println("Error")
-				}
-				for _, word := range string(proj.ListAt(link.Head, i+1).Data) {
 
-					found := match.MatchString(string(word))
-			
-					if found {
-			
-						fmt.Println("%s matches\n", string(word))
-					} else {
-			
-						fmt.Println("%s does not match\n", string(word))
+				vowels := "aAeEiIoOuU"
+				for _, ltr := range vowels {
+					match, _ := regexp.Compile(string(ltr))
+					for _, word := range string(proj.ListAt(link.Head, i+1).Data) {
+						found := match.MatchString(string(word))
+						if found {
+							fmt.Println(found)
+							proj.ListAt(link.Head, i).Data = strings.Replace(proj.ListAt(link.Head, i).Data, "a", "an", -1)
+						}
+						break
 					}
+					
 				}
 
 			}
