@@ -15,9 +15,12 @@ import (
 
 func main() {
 	args := os.Args[1:]
-
+	if len(args) <= 0 {
+		fmt.Println("Error: Missing sample file and output file")
+	}
 	// from cat command
-	if len(args) < 1 {
+	if len(args) > 1 {
+		fmt.Println(len(args))
 		input, err := io.ReadAll(os.Stdin)
 		fmt.Println(input)
 
@@ -64,6 +67,24 @@ func main() {
 			if proj.ListAt(link.Head, i).Data == "(hex)" {
 				hextodec, _ := strconv.ParseInt((proj.ListAt(link.Head, i-1).Data), 16, 32)
 				proj.ListAt(link.Head, i-1).Data = fmt.Sprint(hextodec)
+				proj.DeleteNode(link.Head, i)
+			} else if strings.Contains(proj.ListAt(link.Head, i).Data, "(hex,") {
+				test := strings.Split(proj.ListAt(link.Head, i+1).Data, ")")
+				iterator, _err := strconv.Atoi(test[0])
+
+				if err != nil {
+					fmt.Println(e + " " + _err.Error())
+				}
+				if i-iterator <= 0 {
+					iterator = i
+				}
+
+				for j := i - iterator; j < i; j++ {
+					hextodec, _ := strconv.ParseInt((proj.ListAt(link.Head, j).Data), 16, 32)
+					proj.ListAt(link.Head, j).Data = fmt.Sprint(hextodec)
+				}
+
+				proj.DeleteNode(link.Head, i)
 				proj.DeleteNode(link.Head, i)
 			}
 
@@ -151,17 +172,18 @@ func main() {
 
 			//punctuation check
 			checkpunc := []rune(proj.ListAt(link.Head, i).Data)
-			for j := 0; j < len(checkpunc)-1; j++ {
+			for j := 0; j < len(checkpunc); j++ {
+
 				if strings.Contains(string(checkpunc[j]), "'") {
-					if checkpunc[j+1] == 32 {
-						proj.ListAt(link.Head, i).Data = strings.Replace(proj.ListAt(link.Head, i).Data, "'", "''", -1)
-					}
-				} else if strings.Contains(string(checkpunc[j]), ",") {
-					proj.ListAt(link.Head, i).Data = strings.Replace(proj.ListAt(link.Head, i).Data, ", ", ",", -1)
-					proj.ListAt(link.Head, i).Data = strings.Replace(proj.ListAt(link.Head, i).Data, ",'", ", '", -1)
+
+					//else if strings.Contains(string(checkpunc[j]), ",") {
+					// 	proj.ListAt(link.Head, i).Data = strings.Replace(proj.ListAt(link.Head, i).Data, ", ", ",", -1)
+					// 	//proj.ListAt(link.Head, i).Data = strings.Replace(proj.ListAt(link.Head, i).Data, " ,", ", ", -1)
+					// } else
 				} else if unicode.IsPunct(checkpunc[0]) && unicode.IsPunct(checkpunc[j]) {
 					proj.ListAt(link.Head, i-1).Data = proj.ListAt(link.Head, i-1).Data + string(checkpunc[j])
 					proj.ListAt(link.Head, i).Data = string(checkpunc[j+1:])
+
 				}
 			}
 		}
@@ -169,17 +191,21 @@ func main() {
 		// output for testing
 		counter := 0
 		it := link.Head
+		teststr := ""
 		for it != nil {
-			fmt.Print(it.Data)
+			teststr = teststr + it.Data
 			if counter < proj.ListSize(link)-1 && it.Next.Data != "," {
-				if it.Data == "'" {
-
-				}
-				fmt.Print(" ")
+				teststr = teststr + " "
 			}
 			it = it.Next
 			counter++
 		}
+		teststr = strings.ReplaceAll(teststr, "  ", " ")
+		match, _ := regexp.Compile("[‘'](.*?)[‘']")
+		found := (match.FindString(teststr))
+		//gound2 := strings.TrimSpace("test testteste")
+		found2 := (strings.ReplaceAll(found, " ‘", "‘"))
+		found2 = (strings.ReplaceAll(found2, "‘ ", "‘"))
+		fmt.Println(strings.ReplaceAll(teststr, found, found2))
 	}
-	fmt.Println()
 }
