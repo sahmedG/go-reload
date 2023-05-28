@@ -26,26 +26,3 @@ func DeleteNode(head *Node, index int) *Node {
 	curr.Next = curr.Next.Next
 	return head
 }
-
-// func DeleteNode(l *List, data_ref string) {
-// 	var prev *Node = nil
-// 	curr := l.Head
-
-// 	for curr != nil {
-// 		if curr.Data == data_ref {
-// 			if prev == nil {
-// 				l.Head = curr.Next
-// 			} else {
-// 				prev.Next = curr.Next
-// 			}
-
-// 			if curr.Next == nil {
-// 				l.Tail = prev
-// 			}
-// 		} else {
-// 			prev = curr
-// 		}
-
-// 		curr = curr.Next
-// 	}
-// }
